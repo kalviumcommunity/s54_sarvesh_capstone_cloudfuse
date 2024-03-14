@@ -49,6 +49,18 @@
   }
 }
 
+.bg-footer-cta {
+  width: 100%;
+  border-radius: 40px;
+  color: white;
+  height: 400px;
+  padding: 20px;
+  background-image: url('/footer-cta.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
 .cl-formButtonPrimary {
   font-size: 14px;
   text-transform: none;
