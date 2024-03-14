@@ -122,7 +122,7 @@ const NavBar = () => {
                   </svg>
                 </button>
                 {menuOpen && (
-                  <nav className="w-screen h-screen absolute top-[80%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded p-2 text-gray-600 transition hover:text-gray-600/75">
+                  <nav className="w-screen bg-white z-30 h-screen absolute top-[80%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded p-2 text-gray-600 transition hover:text-gray-600/75">
                     <ul className="flex flex-col w-full items-center gap-6 text-xl font-[600]">
                       <li>
                         <Link
