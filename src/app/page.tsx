@@ -9,10 +9,6 @@ import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 
 export default function Home() {
-  const createFile = useMutation(api.files.createFile);
-
-  const getFiles = useQuery(api.files.getFiles);
-
   return (
     <div className="containere">
       <main className="flex flex-col items-center justify-between p-24 pb-4 md:pt-52">
@@ -262,7 +258,7 @@ export default function Home() {
 
       {/* Footer */}
       <section className="flex flex-col items-center justify-between p-8 md:p-24 pb-0  md:pb-0 md:pt-24 relative">
-        <div className="flex justify-between items-center border-t-2 p-4 border-b-2">
+        <div className="flex flex-col md:flex-row justify-between items-center border-t-2 p-4 border-b-2">
           <div>
             <Image src={"/logo.png"} width={257} height={42} alt="logo" />
             <p className="w-full md:w-1/4 mt-2">
@@ -272,7 +268,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div>
+          <div className="mt-2">
             <SignedIn>
               <Link href={"/dashboard"}>
                 <Button>Launch Cloudfuse</Button>
@@ -306,8 +302,8 @@ export default function Home() {
             </SignedOut>
           </div>
         </div>
-        <footer className="flex justify-between w-full items-center p-5">
-          <div className="flex gap-2 justify-center items-center">
+        <footer className="flex justify-between w-full flex-col space-y-3 md:space-y-0 md:flex-row items-center p-5">
+          <div className="flex gap-2 fle-col justify-center items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -376,21 +372,6 @@ export default function Home() {
               />
             </svg>
           </div>
-          <Button
-            onClick={() => {
-              createFile({
-                name: "Hello World",
-              });
-            }}
-          >
-            Click Me
-          </Button>
-
-          {getFiles?.map((data) => (
-            <div key={data._id}>
-              <h4>{data.name}</h4>
-            </div>
-          ))}
         </footer>
       </section>
     </div>
