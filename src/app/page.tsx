@@ -3,12 +3,29 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { SignUpButton } from "@clerk/nextjs";
-import { SignedIn, SignedOut, SignOutButton } from "@clerk/clerk-react";
+import {
+  SignedIn,
+  SignedOut,
+  SignOutButton,
+  useUser,
+  useOrganization,
+} from "@clerk/clerk-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 
 export default function Home() {
+  const organization = useOrganization();
+  const user = useUser();
+
+  let orgId: string | undefined;
+
+  if (organization.isLoaded && user.isLoaded) {
+    orgId = organization.organization?.id ?? user.user?.id;
+  }
+  const createFile = useMutation(api.files.createFile);
+  const getFiles = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
+
   return (
     <div className="containere">
       <main className="flex flex-col items-center justify-between p-24 pb-4 md:pt-52">
@@ -21,7 +38,21 @@ export default function Home() {
             Collaboration
             <br /> Effortlessly
           </h1>
+          <Button
+            onClick={() => {
+              if (!orgId) return;
+              createFile({
+                name: "Hello World",
+                orgId,
+              });
+            }}
+          >
+            Click Me
+          </Button>
 
+          {getFiles?.map((data) => (
+            <div key={data._id}>{data.name}</div>
+          ))}
           <p className="text-[#3F4654] text-center text-sm md:text-lg">
             Say goodbye to outdated file management. Embrace a next-level <br />{" "}
             secure, collaborative & seamless sharing features by{" "}
