@@ -9,6 +9,7 @@ export const createFile = mutation({
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
 
+    console.log(identity);
     if (!identity) {
       return [];
     }
