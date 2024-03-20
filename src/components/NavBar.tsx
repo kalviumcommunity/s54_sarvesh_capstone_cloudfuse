@@ -78,7 +78,7 @@ const NavBar = () => {
                   </SignInButton>
                 </SignedOut>
 
-                <div className="hidden md:flex justify-between py-4">
+                <div className="hidden md:flex justify-between">
                   <SignedIn>
                     <OrganizationSwitcher />
                     <UserButton />
