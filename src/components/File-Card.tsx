@@ -6,17 +6,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Doc } from "../../convex/_generated/dataModel";
+import { Doc, Id } from "../../convex/_generated/dataModel";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, TrashIcon } from "lucide-react";
+import {
+  GanttChartIcon,
+  ImageIcon,
+  MoreVertical,
+  TextIcon,
+  TrashIcon,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,10 +32,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useToast } from "./ui/use-toast";
+import { getFiles } from "../../convex/files";
+import Image from "next/image";
 
 function FileCardMenu({ file }: { file: Doc<"files"> }) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -92,18 +98,38 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
   );
 }
 
+export function getFileUrl(fileId: Id<"_storage">): string {
+  return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`;
+}
+
 export const FileCard = ({ file }: { file: Doc<"files"> }) => {
+  const typeIcons = {
+    image: <ImageIcon />,
+    pdf: <TextIcon />,
+    csv: <GanttChartIcon />,
+  } as Record<Doc<"files">["type"], ReactNode>;
   return (
     <Card>
       <CardHeader className="relative">
-        <CardTitle>{file.name}</CardTitle>
+        <CardTitle className="flex">
+          <div className="flex gap-2 justify-center items-center">
+            {typeIcons[file.type]}
+            {file.name}
+          </div>{" "}
+        </CardTitle>
         <div className="absolute top-2 right-2">
           <FileCardMenu file={file} />
         </div>
-        {/* <CardDescription>Card Description</CardDescription> */}
       </CardHeader>
       <CardContent>
-        <p>Card Content</p>
+        {file.type == "image" && (
+          <Image
+            alt={file.name}
+            width="200"
+            height="100"
+            src={getFileUrl(file.fileId)}
+          />
+        )}
       </CardContent>
       <CardFooter>
         <Button>Download</Button>
