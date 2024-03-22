@@ -1,18 +1,12 @@
 "use client";
 
 import { useOrganization, useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import UploadButton from "@/components/Upload-Button";
 import { FileCard } from "@/components/File-Card";
 import Image from "next/image";
-import {
-  Loader,
-  Loader2,
-  LoaderCircle,
-  LoaderIcon,
-  LucideLoader2,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const Page = () => {
   const organization = useOrganization();

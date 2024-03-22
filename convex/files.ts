@@ -1,6 +1,5 @@
 import { ConvexError, v } from "convex/values";
 import { MutationCtx, QueryCtx, mutation, query } from "./_generated/server";
-import { error } from "console";
 import { getUser } from "./users";
 import { fileType } from "./schema";
 
