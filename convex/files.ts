@@ -78,10 +78,19 @@ export const getFiles = query({
       return [];
     }
 
-    return ctx.db
+    let files = await ctx.db
       .query("files")
       .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
       .collect();
+
+    const filesWithUrl = await Promise.all(
+      files.map(async (file) => ({
+        ...file,
+        url: await ctx.storage.getUrl(file.fileId),
+      }))
+    );
+
+    return filesWithUrl;
   },
 });
 

@@ -98,10 +98,6 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
   );
 }
 
-export function getFileUrl(fileId: Id<"_storage">): string {
-  return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`;
-}
-
 export const FileCard = ({ file }: { file: Doc<"files"> }) => {
   const typeIcons = {
     image: <ImageIcon />,
@@ -123,12 +119,7 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
       </CardHeader>
       <CardContent>
         {file.type == "image" && (
-          <Image
-            alt={file.name}
-            width="200"
-            height="100"
-            src={getFileUrl(file.fileId)}
-          />
+          <Image alt={file.name} width="200" height="100" src={file.url} />
         )}
       </CardContent>
       <CardFooter>
