@@ -72,7 +72,6 @@ const UploadButton = () => {
       body: values.file[0],
     });
     const { storageId } = await result.json();
-
     // ^ Mapping the Types Based on File Type
     const types = {
       "image/png": "image",
