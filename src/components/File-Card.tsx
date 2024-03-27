@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  FileTextIcon,
   GanttChartIcon,
   ImageIcon,
   MoreVertical,
@@ -36,7 +37,6 @@ import { ReactNode, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useToast } from "./ui/use-toast";
-import { getFiles } from "../../convex/files";
 import Image from "next/image";
 
 function FileCardMenu({ file }: { file: Doc<"files"> }) {
@@ -104,6 +104,7 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
     pdf: <TextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>;
+
   return (
     <Card>
       <CardHeader className="relative">
@@ -117,13 +118,20 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
           <FileCardMenu file={file} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-[200px] flex justify-center items-center">
         {file.type == "image" && (
           <Image alt={file.name} width="200" height="100" src={file.url} />
         )}
+
+        {file.type == "csv" && <GanttChartIcon className="w-20 h-20" />}
+        {file.type == "pdf" && <FileTextIcon className="w-20 h-20" />}
       </CardContent>
-      <CardFooter>
-        <Button>Download</Button>
+      <CardFooter className="flex justify-center">
+        <Button>
+          <a href={file.url} download={file.name} target="_blank">
+            Download
+          </a>
+        </Button>
       </CardFooter>
     </Card>
   );
