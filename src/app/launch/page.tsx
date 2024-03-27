@@ -19,6 +19,7 @@ const Page = () => {
   }
 
   const files = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
+
   return (
     <main className="container mx-auto pt-12">
       {files == undefined && (

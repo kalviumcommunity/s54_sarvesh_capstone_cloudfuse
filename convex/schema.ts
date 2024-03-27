@@ -12,6 +12,7 @@ export default defineSchema({
     type: fileType,
     orgId: v.string(),
     fileId: v.id("_storage"),
+    url: v.optional(v.any()),
   }).index("by_orgId", ["orgId"]),
   users: defineTable({
     tokenIdentifier: v.string(),
