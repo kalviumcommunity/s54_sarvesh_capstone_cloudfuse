@@ -98,7 +98,11 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
   );
 }
 
-export const FileCard = ({ file }: { file: Doc<"files"> }) => {
+export function FileCard({
+  file,
+}: {
+  file: Doc<"files"> & { url: string | null };
+}) {
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <TextIcon />,
@@ -120,7 +124,12 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">
         {file.type == "image" && (
-          <Image alt={file.name} width="200" height="100" src={file.url} />
+          <Image
+            alt={file.name}
+            width="200"
+            height="100"
+            src={file.url ?? ""}
+          />
         )}
 
         {file.type == "csv" && <GanttChartIcon className="w-20 h-20" />}
@@ -128,11 +137,11 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
       </CardContent>
       <CardFooter className="flex justify-center">
         <Button>
-          <a href={file.url} download={file.name} target="_blank">
+          <a href={file.url ?? ""} download={file.name} target="_blank">
             Download
           </a>
         </Button>
       </CardFooter>
     </Card>
   );
-};
+}
