@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -19,6 +20,7 @@ import {
   GanttChartIcon,
   ImageIcon,
   MoreVertical,
+  StarIcon,
   TextIcon,
   TrashIcon,
 } from "lucide-react";
@@ -86,6 +88,14 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
+            onClick={() => {}}
+            className="flex gap-1 items-center justify-center"
+          >
+            <StarIcon />
+            Favorite
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
             onClick={() => setIsConfirmOpen(true)}
             className="flex gap-1 text-red-600 items-center justify-center"
           >
@@ -98,7 +108,11 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
   );
 }
 
-export const FileCard = ({ file }: { file: Doc<"files"> }) => {
+export function FileCard({
+  file,
+}: {
+  file: Doc<"files"> & { url: string | null };
+}) {
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <TextIcon />,
@@ -120,7 +134,12 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">
         {file.type == "image" && (
-          <Image alt={file.name} width="200" height="100" src={file.url} />
+          <Image
+            alt={file.name}
+            width="200"
+            height="100"
+            src={file.url ?? ""}
+          />
         )}
 
         {file.type == "csv" && <GanttChartIcon className="w-20 h-20" />}
@@ -128,11 +147,11 @@ export const FileCard = ({ file }: { file: Doc<"files"> }) => {
       </CardContent>
       <CardFooter className="flex justify-center">
         <Button>
-          <a href={file.url} download={file.name} target="_blank">
+          <a href={file.url ?? ""} download={file.name} target="_blank">
             Download
           </a>
         </Button>
       </CardFooter>
     </Card>
   );
-};
+}

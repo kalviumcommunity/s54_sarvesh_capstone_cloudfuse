@@ -1,5 +1,6 @@
 {
   "/page": "app/page.js",
-  "/launch/page": "app/launch/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/launch/favorites/page": "app/launch/favorites/page.js",
+  "/launch/files/page": "app/launch/files/page.js"
 }

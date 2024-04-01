@@ -28,7 +28,7 @@ export default function Home() {
 
           <div className="flex justify-between items-center gap-9 md:flex-row flex-col">
             <SignedIn>
-              <Link href={"/launch"}>
+              <Link href={"/launch/files"}>
                 <Button>Launch Cloudfuse</Button>
               </Link>
             </SignedIn>
@@ -195,7 +195,7 @@ export default function Home() {
 
           <div className="flex justify-between items-center gap-9 md:flex-row flex-col">
             <SignedIn>
-              <Link href={"/dashboard"}>
+              <Link href={"/launch/files"}>
                 <Button className="flex gap-x-2 bg-white font-bold hover:text-white text-black">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -268,7 +268,7 @@ export default function Home() {
 
           <div className="mt-2">
             <SignedIn>
-              <Link href={"/dashboard"}>
+              <Link href={"/launch/files"}>
                 <Button>Launch Cloudfuse</Button>
               </Link>
             </SignedIn>
