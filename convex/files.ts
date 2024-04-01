@@ -94,7 +94,9 @@ export const getFiles = query({
         }))
       );
 
-      return filesWithUrl.filter((file) => file.name.includes(query));
+      return filesWithUrl.filter((file) =>
+        file.name.toLowerCase().includes(query.toLowerCase())
+      );
     } else {
       const filesWithUrl = await Promise.all(
         files.map(async (file) => ({

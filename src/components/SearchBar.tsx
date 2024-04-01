@@ -20,9 +20,7 @@ const SearchBar = ({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      query: "",
-    },
+    defaultValues: { query: "" },
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setQuery(values.query);
