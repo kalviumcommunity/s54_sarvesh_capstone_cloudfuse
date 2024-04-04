@@ -20,6 +20,7 @@ import {
   GanttChartIcon,
   ImageIcon,
   MoreVertical,
+  StarHalf,
   StarIcon,
   TextIcon,
   TrashIcon,
@@ -42,7 +43,13 @@ import { useToast } from "./ui/use-toast";
 import Image from "next/image";
 import { toggleFavorite } from "../../convex/files";
 
-function FileCardMenu({ file }: { file: Doc<"files"> }) {
+function FileCardMenu({
+  file,
+  isFavorited,
+}: {
+  file: Doc<"files">;
+  isFavorited: boolean;
+}) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   //! Delete Mutation
@@ -97,8 +104,15 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
             }}
             className="flex gap-1 items-center justify-center"
           >
-            <StarIcon />
-            Favorite
+            {isFavorited ? (
+              <div className="flex items-center gap-2">
+                <StarHalf className="w-4 h-4" /> Unfavorite
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <StarIcon className="w-4 h-4" /> Favorite
+              </div>
+            )}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -116,14 +130,20 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
 
 export function FileCard({
   file,
+  favorites,
 }: {
-  file: Doc<"files"> & { url: string | null };
+  file: Doc<"files">;
+  favorites: Doc<"favorites">[];
 }) {
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <TextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>;
+
+  const isFavorited = favorites.some(
+    (favorite) => favorite.fileId === file._id
+  );
 
   return (
     <Card>
@@ -135,7 +155,7 @@ export function FileCard({
           </div>{" "}
         </CardTitle>
         <div className="absolute top-2 right-2">
-          <FileCardMenu file={file} />
+          <FileCardMenu isFavorited={isFavorited} file={file} />
         </div>
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">
