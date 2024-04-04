@@ -40,6 +40,7 @@ import { api } from "../../convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
+import { toggleFavorite } from "../../convex/files";
 
 function FileCardMenu({ file }: { file: Doc<"files"> }) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -47,6 +48,7 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
   //! Delete Mutation
   const deleteFile = useMutation(api.files.deleteFile);
 
+  const toggleFavorite = useMutation(api.files.toggleFavorite);
   const { toast } = useToast();
 
   return (
@@ -88,7 +90,11 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
-            onClick={() => {}}
+            onClick={() => {
+              toggleFavorite({
+                fileId: file._id,
+              });
+            }}
             className="flex gap-1 items-center justify-center"
           >
             <StarIcon />
