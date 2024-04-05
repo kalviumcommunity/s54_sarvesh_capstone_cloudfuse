@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "CloudFuse",
   description: "Secure and Collaborative File Storage Made Simple",
+  icons: "/favicon.png",
 };
 
 export default function RootLayout({
