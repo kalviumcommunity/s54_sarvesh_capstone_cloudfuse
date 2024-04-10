@@ -1,1 +1,5 @@
-{}
+{
+  "/page": "app/page.js",
+  "/launch/files/page": "app/launch/files/page.js",
+  "/launch/trash/page": "app/launch/trash/page.js"
+}

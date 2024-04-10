@@ -1,6 +1,6 @@
 "use client";
 
-import { FileIcon, StarIcon } from "lucide-react";
+import { FileIcon, StarIcon, TrashIcon } from "lucide-react";
 import React from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -30,6 +30,16 @@ const SideNav = () => {
           })}
         >
           <StarIcon /> Favorites Files
+        </Button>
+      </Link>
+      <Link href="/launch/trash">
+        <Button
+          variant={"link"}
+          className={clsx("flex gap-2 text-black", {
+            "text-primary": pathname.includes("/launch/trash"),
+          })}
+        >
+          <TrashIcon /> Trash
         </Button>
       </Link>
     </div>

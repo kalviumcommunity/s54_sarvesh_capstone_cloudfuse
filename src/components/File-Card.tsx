@@ -23,6 +23,7 @@ import {
   StarIcon,
   TextIcon,
   TrashIcon,
+  UndoIcon,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -54,6 +55,7 @@ function FileCardMenu({
 
   //! Delete Mutation
   const deleteFile = useMutation(api.files.deleteFile);
+  const restoreFile = useMutation(api.files.restoreFile);
 
   const toggleFavorite = useMutation(api.files.toggleFavorite);
   const { toast } = useToast();
@@ -66,8 +68,8 @@ function FileCardMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              file.
+              This action will mark the file for Deletion Process. Files will be
+              deleted after 30 days
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -79,8 +81,8 @@ function FileCardMenu({
                 deleteFile({ fileId: file._id });
                 toast({
                   variant: "destructive",
-                  title: "File Deleted",
-                  description: "Your file is Permanently Deleted",
+                  title: "Send to Trash",
+                  description: "Your file will be deleted soon",
                 });
               }}
             >
@@ -117,11 +119,26 @@ function FileCardMenu({
           <DropdownMenuSeparator />
           <Protect role="org:admin" fallback={<></>}>
             <DropdownMenuItem
-              onClick={() => setIsConfirmOpen(true)}
-              className="flex gap-1 text-red-600 items-center justify-center"
+              onClick={() => {
+                if (file.shouldDelete) {
+                  restoreFile({
+                    fileId: file._id,
+                  });
+                } else {
+                  setIsConfirmOpen(true);
+                }
+              }}
+              className="flex gap-1 items-center justify-center"
             >
-              <TrashIcon />
-              Delete
+              {file.shouldDelete ? (
+                <div className="flex text-green-500 gap-2 items-center">
+                  <UndoIcon className="w-4 h-4" /> Restore
+                </div>
+              ) : (
+                <div className="flex gap-2 text-red-600 items-center">
+                  <TrashIcon className="w-4 h-4" /> Delete
+                </div>
+              )}
             </DropdownMenuItem>
           </Protect>
         </DropdownMenuContent>
