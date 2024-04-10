@@ -4,6 +4,7 @@ import { getUser } from "./users";
 import { fileType } from "./schema";
 import { error } from "console";
 import { Id } from "./_generated/dataModel";
+import { access } from "fs";
 
 export const generateUploadUrl = mutation(async (ctx) => {
   const identity = await ctx.auth.getUserIdentity();
@@ -14,17 +15,31 @@ export const generateUploadUrl = mutation(async (ctx) => {
   return await ctx.storage.generateUploadUrl();
 });
 
-async function hasAccessToOrg(
-  ctx: QueryCtx | MutationCtx,
-  tokenIdentifier: string,
-  orgId: string
-) {
-  const user = await getUser(ctx, tokenIdentifier);
+async function hasAccessToOrg(ctx: QueryCtx | MutationCtx, orgId: string) {
+  const identity = await ctx.auth.getUserIdentity();
+
+  if (!identity) {
+    return null;
+  }
+
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_tokenIdentifier", (q) =>
+      q.eq("tokenIdentifier", identity.tokenIdentifier)
+    )
+    .first();
+
+  if (!user) {
+    return null;
+  }
 
   const hasAccess =
-    user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
+    user.orgIds.some((item) => item.orgId === orgId) ||
+    user.tokenIdentifier.includes(orgId);
 
-  return hasAccess;
+  if (!hasAccess) return null;
+
+  return { user };
 }
 
 export const createFile = mutation({
@@ -35,17 +50,7 @@ export const createFile = mutation({
     orgId: v.string(),
   },
   async handler(ctx, args) {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      throw new ConvexError("you must be logged in to upload Files");
-    }
-
-    const hasAccess = await hasAccessToOrg(
-      ctx,
-      identity.tokenIdentifier,
-      args.orgId
-    );
+    const hasAccess = await hasAccessToOrg(ctx, args.orgId);
 
     if (!hasAccess) {
       throw new ConvexError("You don't have access to this org");
@@ -64,19 +69,10 @@ export const getFiles = query({
     orgId: v.string(),
     query: v.optional(v.string()),
     favorites: v.optional(v.boolean()),
+    deleteOnly: v.optional(v.boolean()),
   },
   async handler(ctx, args) {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      return [];
-    }
-
-    const hasAccess = await hasAccessToOrg(
-      ctx,
-      identity.tokenIdentifier,
-      args.orgId
-    );
+    const hasAccess = await hasAccessToOrg(ctx, args.orgId);
 
     if (!hasAccess) {
       return [];
@@ -106,22 +102,10 @@ export const getFiles = query({
     }
 
     if (args.favorites) {
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_tokenIdentifier", (q) =>
-          q.eq("tokenIdentifier", identity.tokenIdentifier)
-        )
-        .first();
-
-      if (!user) {
-        return filesWithUrl.filter((file) =>
-          file.name.toLowerCase().includes(query.toLowerCase())
-        );
-      }
       const favorites = await ctx.db
         .query("favorites")
         .withIndex("by_userId_orgId_fileId", (q) =>
-          q.eq("userId", user._id).eq("orgId", args.orgId)
+          q.eq("userId", hasAccess.user._id).eq("orgId", args.orgId)
         )
         .collect();
 
@@ -129,6 +113,12 @@ export const getFiles = query({
         favorites.some((favorite) => favorite.fileId === file._id)
       );
     }
+    if (args.deleteOnly) {
+      filesWithUrl = filesWithUrl.filter((file) => file.shouldDelete);
+    } else {
+      filesWithUrl = filesWithUrl.filter((file) => !file.shouldDelete);
+    }
+
     return filesWithUrl.filter((file) =>
       file.name.toLowerCase().includes(query.toLowerCase())
     );
@@ -143,7 +133,39 @@ export const deleteFile = mutation({
     if (!access) {
       throw new ConvexError("no access to file");
     }
-    await ctx.db.delete(args.fileId);
+
+    const isAdmin =
+      access.user.orgIds.find((org) => org.orgId === access.file.orgId)
+        ?.role === "admin";
+
+    if (!isAdmin) {
+      throw new ConvexError("you have no access to delete");
+    }
+    await ctx.db.patch(args.fileId, {
+      shouldDelete: true,
+    });
+  },
+});
+
+export const restoreFile = mutation({
+  args: { fileId: v.id("files") },
+  async handler(ctx, args) {
+    const access = await hasAccessToFile(ctx, args.fileId);
+
+    if (!access) {
+      throw new ConvexError("no access to file");
+    }
+
+    const isAdmin =
+      access.user.orgIds.find((org) => org.orgId === access.file.orgId)
+        ?.role === "admin";
+
+    if (!isAdmin) {
+      throw new ConvexError("you have no access to delete");
+    }
+    await ctx.db.patch(args.fileId, {
+      shouldDelete: false,
+    });
   },
 });
 
@@ -178,41 +200,40 @@ export const toggleFavorite = mutation({
   },
 });
 
+export const getAllFavorites = query({
+  args: { orgId: v.string() },
+  async handler(ctx, args) {
+    const hasAccess = await hasAccessToOrg(ctx, args.orgId);
+
+    if (!hasAccess) {
+      return [];
+    }
+
+    const favorites = await ctx.db
+      .query("favorites")
+      .withIndex("by_userId_orgId_fileId", (q) =>
+        q.eq("userId", hasAccess.user._id).eq("orgId", args.orgId)
+      )
+      .collect();
+
+    return favorites;
+  },
+});
+
 async function hasAccessToFile(
   ctx: QueryCtx | MutationCtx,
   fileId: Id<"files">
 ) {
-  const identity = await ctx.auth.getUserIdentity();
-
-  if (!identity) {
-    return null;
-  }
-
   const file = await ctx.db.get(fileId);
 
   if (!file) {
     return null;
   }
-  const hasAccess = await hasAccessToOrg(
-    ctx,
-    identity.tokenIdentifier,
-    file.orgId
-  );
+  const hasAccess = await hasAccessToOrg(ctx, file.orgId);
 
   if (!hasAccess) {
     return null;
   }
 
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_tokenIdentifier", (q) =>
-      q.eq("tokenIdentifier", identity.tokenIdentifier)
-    )
-    .first();
-
-  if (!user) {
-    return null;
-  }
-
-  return { user, file };
+  return { user: hasAccess.user, file };
 }

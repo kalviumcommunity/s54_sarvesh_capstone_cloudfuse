@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -20,9 +19,11 @@ import {
   GanttChartIcon,
   ImageIcon,
   MoreVertical,
+  StarHalf,
   StarIcon,
   TextIcon,
   TrashIcon,
+  UndoIcon,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -41,12 +42,20 @@ import { useMutation } from "convex/react";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
 import { toggleFavorite } from "../../convex/files";
+import { Protect } from "@clerk/nextjs";
 
-function FileCardMenu({ file }: { file: Doc<"files"> }) {
+function FileCardMenu({
+  file,
+  isFavorited,
+}: {
+  file: Doc<"files">;
+  isFavorited: boolean;
+}) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   //! Delete Mutation
   const deleteFile = useMutation(api.files.deleteFile);
+  const restoreFile = useMutation(api.files.restoreFile);
 
   const toggleFavorite = useMutation(api.files.toggleFavorite);
   const { toast } = useToast();
@@ -59,8 +68,8 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              file.
+              This action will mark the file for Deletion Process. Files will be
+              deleted after 30 days
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -72,8 +81,8 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
                 deleteFile({ fileId: file._id });
                 toast({
                   variant: "destructive",
-                  title: "File Deleted",
-                  description: "Your file is Permanently Deleted",
+                  title: "Send to Trash",
+                  description: "Your file will be deleted soon",
                 });
               }}
             >
@@ -97,17 +106,41 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
             }}
             className="flex gap-1 items-center justify-center"
           >
-            <StarIcon />
-            Favorite
+            {isFavorited ? (
+              <div className="flex items-center gap-2">
+                <StarHalf className="w-4 h-4" /> Unfavorite
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <StarIcon className="w-4 h-4" /> Favorite
+              </div>
+            )}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setIsConfirmOpen(true)}
-            className="flex gap-1 text-red-600 items-center justify-center"
-          >
-            <TrashIcon />
-            Delete
-          </DropdownMenuItem>
+          <Protect role="org:admin" fallback={<></>}>
+            <DropdownMenuItem
+              onClick={() => {
+                if (file.shouldDelete) {
+                  restoreFile({
+                    fileId: file._id,
+                  });
+                } else {
+                  setIsConfirmOpen(true);
+                }
+              }}
+              className="flex gap-1 items-center justify-center"
+            >
+              {file.shouldDelete ? (
+                <div className="flex text-green-500 gap-2 items-center">
+                  <UndoIcon className="w-4 h-4" /> Restore
+                </div>
+              ) : (
+                <div className="flex gap-2 text-red-600 items-center">
+                  <TrashIcon className="w-4 h-4" /> Delete
+                </div>
+              )}
+            </DropdownMenuItem>
+          </Protect>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -116,14 +149,20 @@ function FileCardMenu({ file }: { file: Doc<"files"> }) {
 
 export function FileCard({
   file,
+  favorites,
 }: {
-  file: Doc<"files"> & { url: string | null };
+  file: Doc<"files">;
+  favorites: Doc<"favorites">[];
 }) {
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <TextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>;
+
+  const isFavorited = favorites.some(
+    (favorite) => favorite.fileId === file._id
+  );
 
   return (
     <Card>
@@ -135,7 +174,7 @@ export function FileCard({
           </div>{" "}
         </CardTitle>
         <div className="absolute top-2 right-2">
-          <FileCardMenu file={file} />
+          <FileCardMenu isFavorited={isFavorited} file={file} />
         </div>
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">
