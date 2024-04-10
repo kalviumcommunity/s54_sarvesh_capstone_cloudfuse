@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -42,6 +41,7 @@ import { useMutation } from "convex/react";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
 import { toggleFavorite } from "../../convex/files";
+import { Protect } from "@clerk/nextjs";
 
 function FileCardMenu({
   file,
@@ -115,13 +115,15 @@ function FileCardMenu({
             )}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setIsConfirmOpen(true)}
-            className="flex gap-1 text-red-600 items-center justify-center"
-          >
-            <TrashIcon />
-            Delete
-          </DropdownMenuItem>
+          <Protect role="org:admin" fallback={<></>}>
+            <DropdownMenuItem
+              onClick={() => setIsConfirmOpen(true)}
+              className="flex gap-1 text-red-600 items-center justify-center"
+            >
+              <TrashIcon />
+              Delete
+            </DropdownMenuItem>
+          </Protect>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
