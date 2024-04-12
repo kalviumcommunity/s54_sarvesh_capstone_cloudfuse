@@ -26,6 +26,19 @@ http.route({
         case "user.created":
           await ctx.runMutation(internal.users.createUser, {
             tokenIdentifier: `https://choice-cricket-2.clerk.accounts.dev|${result.data.id}`,
+            name: `${result.data.first_name ?? ""} ${
+              result.data.last_name ?? ""
+            }`,
+            image: result.data.image_url,
+          });
+          break;
+        case "user.updated":
+          await ctx.runMutation(internal.users.createUser, {
+            tokenIdentifier: `https://choice-cricket-2.clerk.accounts.dev|${result.data.id}`,
+            name: `${result.data.first_name ?? ""} ${
+              result.data.last_name ?? ""
+            }`,
+            image: result.data.image_url,
           });
           break;
         case "organizationMembership.created":
