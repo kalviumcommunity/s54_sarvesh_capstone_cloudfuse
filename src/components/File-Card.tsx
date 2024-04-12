@@ -6,7 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Doc, Id } from "../../convex/_generated/dataModel";
-import { Button } from "./ui/button";
+import { format, formatDistance, formatRelative, subDays } from "date-fns";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import {
+  FileIcon,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
@@ -38,7 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ReactNode, useState } from "react";
 import { api } from "../../convex/_generated/api";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
 import { toggleFavorite } from "../../convex/files";
@@ -116,6 +120,15 @@ function FileCardMenu({
               </div>
             )}
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              window.open(file.url);
+            }}
+            className="flex gap-1 items-center justify-center"
+          >
+            <FileIcon /> Download
+          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
           <Protect role="org:admin" fallback={<></>}>
             <DropdownMenuItem
@@ -154,6 +167,9 @@ export function FileCard({
   file: Doc<"files">;
   favorites: Doc<"favorites">[];
 }) {
+  const userProfile = useQuery(api.users.getUserProfile, {
+    userId: file.userId,
+  });
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <TextIcon />,
@@ -190,12 +206,17 @@ export function FileCard({
         {file.type == "csv" && <GanttChartIcon className="w-20 h-20" />}
         {file.type == "pdf" && <FileTextIcon className="w-20 h-20" />}
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <Button>
-          <a href={file.url ?? ""} download={file.name} target="_blank">
-            Download
-          </a>
-        </Button>
+      <CardFooter className="flex justify-between text-xs mt-3 items-center">
+        <div className="flex gap-1 text-gray-700 items-center w-40">
+          <Avatar className="w-6 h-6">
+            <AvatarImage src={userProfile?.image} />
+            <AvatarFallback>CF</AvatarFallback>
+          </Avatar>
+          {userProfile?.name}
+        </div>
+        <div className="text-gray-700">
+          Uploaded {formatRelative(new Date(file._creationTime), new Date())}
+        </div>
       </CardFooter>
     </Card>
   );
