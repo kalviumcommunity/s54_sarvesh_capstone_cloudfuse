@@ -91,22 +91,16 @@ export const getFiles = query({
 
     const query = args.query ?? "";
     let filesWithUrl;
-    if (query) {
-      filesWithUrl = await Promise.all(
-        files.map(async (file) => ({
-          ...file,
-          url: await ctx.storage.getUrl(file.fileId),
-        }))
-      );
-    } else {
-      filesWithUrl = await Promise.all(
-        files.map(async (file) => ({
-          ...file,
-          url: await ctx.storage.getUrl(file.fileId),
-        }))
-      );
-    }
 
+    // Fetch URL for each file
+    filesWithUrl = await Promise.all(
+      files.map(async (file) => ({
+        ...file,
+        url: await ctx.storage.getUrl(file.fileId),
+      }))
+    );
+
+    // Filter files based on query, favorites, deleteOnly, and type
     if (args.favorites) {
       const favorites = await ctx.db
         .query("favorites")
@@ -126,12 +120,24 @@ export const getFiles = query({
     }
 
     if (args.type) {
-      filesWithUrl = filesWithUrl.filter((file) => file.type == args.type);
+      filesWithUrl = filesWithUrl.filter((file) => file.type === args.type);
     }
 
-    return filesWithUrl.filter((file) =>
+    // Filter files based on query
+    filesWithUrl = filesWithUrl.filter((file) =>
       file.name.toLowerCase().includes(query.toLowerCase())
     );
+
+    return filesWithUrl;
+  },
+});
+
+export const getFilewithId = query({
+  args: { fileId: v.string() },
+  async handler(ctx, args) {
+    const url = await ctx.storage.getUrl(args.fileId);
+
+    return url;
   },
 });
 

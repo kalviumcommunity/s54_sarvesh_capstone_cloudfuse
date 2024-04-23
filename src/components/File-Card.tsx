@@ -6,48 +6,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Doc, Id } from "../../convex/_generated/dataModel";
-import { format, formatDistance, formatRelative, subDays } from "date-fns";
+import { formatRelative } from "date-fns";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
-  FileIcon,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
-  MoreVertical,
-  StarHalf,
-  StarIcon,
   TextIcon,
-  TrashIcon,
-  UndoIcon,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { ReactNode, useState } from "react";
+
+import { ReactNode } from "react";
 import { api } from "../../convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
-import { useToast } from "./ui/use-toast";
+import { useQuery } from "convex/react";
 import Image from "next/image";
-import { toggleFavorite } from "../../convex/files";
-import { Protect } from "@clerk/nextjs";
 import { FileCardMenu } from "./FileMenu";
+import { useRouter } from "next/navigation";
 
 export function FileCard({
   file,
@@ -63,8 +38,15 @@ export function FileCard({
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>;
 
+  const router = useRouter();
+
   return (
-    <Card>
+    <Card
+      onClick={() => {
+        router.push("/launch/file-preview/" + file.fileId);
+      }}
+      className="cursor-pointer"
+    >
       <CardHeader className="relative">
         <CardTitle className="flex gap-2 text-base font-normal">
           <div className="flex gap-2 justify-center items-center">
