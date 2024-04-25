@@ -1,4 +1,5 @@
 {
-  "/launch/files/page": "app/launch/files/page.js",
-  "/launch/file-preview/[fileId]/page": "app/launch/file-preview/[fileId]/page.js"
+  "/page": "app/page.js",
+  "/launch/file-preview/[fileId]/page": "app/launch/file-preview/[fileId]/page.js",
+  "/launch/files/page": "app/launch/files/page.js"
 }

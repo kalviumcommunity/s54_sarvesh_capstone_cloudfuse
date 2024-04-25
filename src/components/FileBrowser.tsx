@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 "use client";
 
 import { useOrganization, useUser } from "@clerk/nextjs";
@@ -93,8 +95,8 @@ export function FileBrowser({
           </div>
 
           <Tabs defaultValue="grid">
-            <div className="flex justify-center">
-              <TabsList className="w-[400px] mb-4">
+            <div className="flex justify-between px-14 items-center">
+              <TabsList className="w-[300px] mb-2">
                 <TabsTrigger value="grid" className="flex gap-2 items-center">
                   <GridIcon />
                   Grid
@@ -104,7 +106,7 @@ export function FileBrowser({
                   Table
                 </TabsTrigger>
               </TabsList>
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center justify-center">
                 <Label htmlFor="typeSelect">Type Filter</Label>
                 <Select
                   value={type}

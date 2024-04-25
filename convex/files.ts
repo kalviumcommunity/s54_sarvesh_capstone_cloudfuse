@@ -132,12 +132,24 @@ export const getFiles = query({
   },
 });
 
-export const getFilewithId = query({
+export const getFileUrlWithId = query({
   args: { fileId: v.string() },
   async handler(ctx, args) {
     const url = await ctx.storage.getUrl(args.fileId);
 
     return url;
+  },
+});
+
+export const getFileWithId = query({
+  args: { fileId: v.string() },
+  async handler(ctx, args) {
+    const file = ctx.db
+      .query("files")
+      .filter((q) => q.eq(q.field("fileId"), args.fileId))
+      .first();
+
+    return file;
   },
 });
 

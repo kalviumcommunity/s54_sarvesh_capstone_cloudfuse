@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 export function FileCard({
   file,
 }: {
-  file: Doc<"files"> & { isFavorited: boolean };
+  file: Doc<"files"> & { isFavorited: boolean; url: string };
 }) {
   const userProfile = useQuery(api.users.getUserProfile, {
     userId: file.userId,
@@ -39,7 +39,6 @@ export function FileCard({
   } as Record<Doc<"files">["type"], ReactNode>;
 
   const router = useRouter();
-
   return (
     <Card
       onClick={() => {
@@ -64,7 +63,8 @@ export function FileCard({
             alt={file.name}
             width="200"
             height="100"
-            src={file.url ?? ""}
+            src={file.url}
+            className="rounded-md max-w-52 max-h-28 object-contain"
           />
         )}
 

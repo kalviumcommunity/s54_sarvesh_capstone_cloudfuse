@@ -12,8 +12,9 @@ import { FileCardMenu } from "./FileMenu";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-function UserCell({ userId }: { userId: Id<"users"> }) {
+export function UserCell({ userId }: { userId: Id<"users"> }) {
   const userProfile = useQuery(api.users.getUserProfile, { userId: userId });
+  console.log(userProfile?.name);
   return (
     <div className="flex gap-1 text-gray-700 items-center w-40">
       <Avatar className="w-6 h-6">

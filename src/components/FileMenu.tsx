@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Doc } from "../../convex/_generated/dataModel";
 
 import {
