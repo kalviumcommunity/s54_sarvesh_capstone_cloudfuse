@@ -40,12 +40,7 @@ export function FileCard({
 
   const router = useRouter();
   return (
-    <Card
-      onClick={() => {
-        router.push("/launch/file-preview/" + file.fileId);
-      }}
-      className="cursor-pointer"
-    >
+    <Card>
       <CardHeader className="relative">
         <CardTitle className="flex gap-2 text-base font-normal">
           <div className="flex gap-2 justify-center items-center">
@@ -57,7 +52,12 @@ export function FileCard({
           <FileCardMenu isFavorited={file.isFavorited} file={file} />
         </div>
       </CardHeader>
-      <CardContent className="h-[200px] flex justify-center items-center">
+      <CardContent
+        className="h-[200px] flex justify-center items-center cursor-pointer"
+        onClick={() => {
+          router.push("/launch/file-preview/" + file.fileId);
+        }}
+      >
         {file.type == "image" && (
           <Image
             alt={file.name}
