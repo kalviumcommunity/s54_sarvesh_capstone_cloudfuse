@@ -3,9 +3,9 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-crons.interval(
+crons.monthly(
   "delete all the files marked for deletion",
-  { minutes: 1 },
+  { day: 1, hourUTC: 16, minuteUTC: 0 },
   internal.files.deleteAllFiles
 );
 

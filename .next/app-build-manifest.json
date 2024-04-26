@@ -21,6 +21,21 @@
       "static/chunks/main-app.js",
       "static/chunks/app/launch/files/page.js"
     ],
+    "/launch/trash/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/launch/trash/page.js"
+    ],
+    "/launch/favorites/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/launch/favorites/page.js"
+    ],
+    "/pricing/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/pricing/page.js"
+    ],
     "/launch/file-preview/[fileId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
