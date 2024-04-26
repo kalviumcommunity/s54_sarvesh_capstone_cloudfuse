@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 "use client";
 
 import { useOrganization, useUser } from "@clerk/nextjs";
@@ -6,9 +8,21 @@ import { api } from "../../convex/_generated/api";
 import UploadButton from "@/components/Upload-Button";
 import { FileCard } from "@/components/File-Card";
 import Image from "next/image";
-import { Loader2 } from "lucide-react";
+import { GridIcon, Loader2, TableIcon } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import { useState } from "react";
+import { DataTable } from "./FileTable";
+import { columns } from "./Columns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Doc } from "../../convex/_generated/dataModel";
+import { Label } from "@radix-ui/react-label";
 
 function EmptyState() {
   return (
@@ -34,6 +48,7 @@ export function FileBrowser({
 
   // * Search Option
   const [query, setQuery] = useState("");
+  const [type, setType] = useState<Doc<"files">["type"] | "all">("all");
 
   let orgId: string | undefined = undefined;
 
@@ -47,18 +62,26 @@ export function FileBrowser({
 
   const files = useQuery(
     api.files.getFiles,
-    orgId ? { orgId, query, favorites: favoritesOnly, deleteOnly } : "skip"
+    orgId
+      ? {
+          orgId,
+          type: type == "all" ? undefined : type,
+          query,
+          favorites: favoritesOnly,
+          deleteOnly,
+        }
+      : "skip"
   );
 
+  const modifiledFiles =
+    files?.map((file) => ({
+      ...file,
+      isFavorited: (favorites ?? []).some(
+        (favorite) => favorite.fileId === file._id
+      ),
+    })) ?? [];
   return (
     <div>
-      {files == undefined && (
-        <div className="flex flex-col justify-center items-center mt-48 gap-3">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-primary font-semibold">Loading your files ...</p>
-        </div>
-      )}
-
       {/* {} */}
       {((files && files?.length == 0 && !query) || files?.length == 0) && (
         <EmptyState />
@@ -71,17 +94,58 @@ export function FileBrowser({
             <UploadButton />
           </div>
 
-          <div className="grid grid-cols-4 gap-10 md:px-14">
-            {files?.map((file) => {
-              return (
-                <FileCard
-                  favorites={favorites ?? []}
-                  key={file._id}
-                  file={file}
-                />
-              );
-            })}
-          </div>
+          <Tabs defaultValue="grid">
+            <div className="flex justify-between px-14 items-center">
+              <TabsList className="w-[300px] mb-2">
+                <TabsTrigger value="grid" className="flex gap-2 items-center">
+                  <GridIcon />
+                  Grid
+                </TabsTrigger>
+                <TabsTrigger value="table" className="flex gap-2 items-center">
+                  <TableIcon />
+                  Table
+                </TabsTrigger>
+              </TabsList>
+              <div className="flex gap-2 items-center justify-center">
+                <Label htmlFor="typeSelect">Type Filter</Label>
+                <Select
+                  value={type}
+                  onValueChange={(newType) => {
+                    setType(newType as any);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px]" defaultValue={"all"}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="image">Image</SelectItem>
+                    <SelectItem value="csv">CSV</SelectItem>
+                    <SelectItem value="pdf">PDF</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {files == undefined && (
+              <div className="flex flex-col justify-center items-center mt-48 gap-3">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <p className="text-primary font-semibold">
+                  Loading your files ...
+                </p>
+              </div>
+            )}
+            <TabsContent value="grid">
+              <div className="grid grid-cols-4 gap-10 md:px-14">
+                {modifiledFiles?.map((file) => {
+                  return <FileCard key={file._id} file={file} />;
+                })}
+              </div>
+            </TabsContent>
+            <TabsContent value="table">
+              {" "}
+              <DataTable columns={columns} data={modifiledFiles} />
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </div>

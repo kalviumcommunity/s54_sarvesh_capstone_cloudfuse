@@ -6,10 +6,8 @@ import {
   mutation,
   query,
 } from "./_generated/server";
-import { getUser } from "./users";
 import { fileType } from "./schema";
-import { error } from "console";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { access } from "fs";
 
 export const generateUploadUrl = mutation(async (ctx) => {
@@ -77,6 +75,7 @@ export const getFiles = query({
     query: v.optional(v.string()),
     favorites: v.optional(v.boolean()),
     deleteOnly: v.optional(v.boolean()),
+    type: v.optional(fileType),
   },
   async handler(ctx, args) {
     const hasAccess = await hasAccessToOrg(ctx, args.orgId);
@@ -92,22 +91,16 @@ export const getFiles = query({
 
     const query = args.query ?? "";
     let filesWithUrl;
-    if (query) {
-      filesWithUrl = await Promise.all(
-        files.map(async (file) => ({
-          ...file,
-          url: await ctx.storage.getUrl(file.fileId),
-        }))
-      );
-    } else {
-      filesWithUrl = await Promise.all(
-        files.map(async (file) => ({
-          ...file,
-          url: await ctx.storage.getUrl(file.fileId),
-        }))
-      );
-    }
 
+    // Fetch URL for each file
+    filesWithUrl = await Promise.all(
+      files.map(async (file) => ({
+        ...file,
+        url: await ctx.storage.getUrl(file.fileId),
+      }))
+    );
+
+    // Filter files based on query, favorites, deleteOnly, and type
     if (args.favorites) {
       const favorites = await ctx.db
         .query("favorites")
@@ -126,9 +119,37 @@ export const getFiles = query({
       filesWithUrl = filesWithUrl.filter((file) => !file.shouldDelete);
     }
 
-    return filesWithUrl.filter((file) =>
+    if (args.type) {
+      filesWithUrl = filesWithUrl.filter((file) => file.type === args.type);
+    }
+
+    // Filter files based on query
+    filesWithUrl = filesWithUrl.filter((file) =>
       file.name.toLowerCase().includes(query.toLowerCase())
     );
+
+    return filesWithUrl;
+  },
+});
+
+export const getFileUrlWithId = query({
+  args: { fileId: v.string() },
+  async handler(ctx, args) {
+    const url = await ctx.storage.getUrl(args.fileId);
+
+    return url;
+  },
+});
+
+export const getFileWithId = query({
+  args: { fileId: v.string() },
+  async handler(ctx, args) {
+    const file = ctx.db
+      .query("files")
+      .filter((q) => q.eq(q.field("fileId"), args.fileId))
+      .first();
+
+    return file;
   },
 });
 
@@ -149,6 +170,16 @@ export const deleteAllFiles = internalMutation({
   },
 });
 
+function canDeleteFile(user: Doc<"users">, file: Doc<"files">) {
+  const canDelete =
+    file.userId === user._id ||
+    user.orgIds.find((org) => org.orgId === file.orgId)?.role === "admin";
+
+  if (!canDelete) {
+    throw new ConvexError("you have no access to delete this file");
+  }
+}
+
 export const deleteFile = mutation({
   args: { fileId: v.id("files") },
   async handler(ctx, args) {
@@ -158,13 +189,8 @@ export const deleteFile = mutation({
       throw new ConvexError("no access to file");
     }
 
-    const isAdmin =
-      access.user.orgIds.find((org) => org.orgId === access.file.orgId)
-        ?.role === "admin";
+    canDeleteFile(access.user, access.file);
 
-    if (!isAdmin) {
-      throw new ConvexError("you have no access to delete");
-    }
     await ctx.db.patch(args.fileId, {
       shouldDelete: true,
     });

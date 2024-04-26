@@ -56,7 +56,7 @@ const NavBar = () => {
                 <li>
                   <Link
                     className="text-[#6B7589] transition hover:text-gray-500/75"
-                    href="#"
+                    href="/pricing"
                   >
                     {" "}
                     Pricing{" "}
