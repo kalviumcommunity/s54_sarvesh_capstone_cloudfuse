@@ -12,6 +12,7 @@ import {
 import {
   FileIcon,
   MoreVertical,
+  PencilIcon,
   StarHalf,
   StarIcon,
   TrashIcon,
@@ -48,9 +49,36 @@ export function FileCardMenu({
   const restoreFile = useMutation(api.files.restoreFile);
   const me = useQuery(api.users.getMe);
 
+  const renameFile = useMutation(api.files.renameFile);
+
   const toggleFavorite = useMutation(api.files.toggleFavorite);
   const { toast } = useToast();
 
+  const handleRenameFile = async (fileId) => {
+    // Prompt the user for the new name
+    const newName = await prompt("Enter the new name for the file:");
+
+    if (!newName) {
+      return; // User canceled the prompt
+    }
+
+    try {
+      // Call a mutation to update the file name
+      await renameFile({ id: fileId, newName });
+      toast({
+        variant: "success",
+        title: "File Renamed",
+        description: "The file name has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Error renaming file:", error.message);
+      toast({
+        variant: "destructive",
+        title: "Error Renaming File",
+        description: error.message,
+      });
+    }
+  };
   return (
     <>
       {/* Alert Dialog   */}
@@ -89,6 +117,12 @@ export function FileCardMenu({
           <MoreVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => handleRenameFile(file._id)}
+            className="flex gap-1 items-center justify-center"
+          >
+            <PencilIcon className="w-4 h-4" /> Rename
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               window.open(file.url);

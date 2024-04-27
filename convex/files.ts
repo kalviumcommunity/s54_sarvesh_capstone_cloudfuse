@@ -69,6 +69,22 @@ export const createFile = mutation({
   },
 });
 
+export const renameFile = mutation({
+  args: { id: v.id("files"), newName: v.string() },
+  handler: async (ctx, args) => {
+    const { id, newName } = args;
+
+    // Check if the file exists
+    const existingFile = await ctx.db.get(id);
+    if (!existingFile) {
+      throw new Error("File not found");
+    }
+
+    // Update the document with the new name
+    await ctx.db.patch(id, { name: newName });
+  },
+});
+
 export const getFiles = query({
   args: {
     orgId: v.string(),
