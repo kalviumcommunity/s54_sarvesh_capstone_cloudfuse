@@ -58,13 +58,14 @@ const UploadButton = () => {
   const fileRef = form.register("file");
 
   const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.file[0] && values.file[0].size > 5000000) {
       return toast({
         variant: "destructive",
         title: "The File Size is Larger",
-        description: "maximum file size is 5 MB allowed",
+        description: "Maximum file size is 5 MB allowed",
       });
     }
 
@@ -98,6 +99,7 @@ const UploadButton = () => {
       });
       form.reset();
       setIsFileDialogOpen(false);
+      setSelectedFileName(null);
 
       toast({
         variant: "success",
@@ -108,7 +110,7 @@ const UploadButton = () => {
       toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: "Your File Couldn't uploaded , try again later",
+        description: "Your file couldn't be uploaded, try again later",
       });
     }
   }
@@ -127,6 +129,7 @@ const UploadButton = () => {
       onOpenChange={(isOpen) => {
         setIsFileDialogOpen(isOpen);
         form.reset();
+        setSelectedFileName(null);
       }}
     >
       <DialogTrigger asChild>
@@ -181,13 +184,12 @@ const UploadButton = () => {
                                 />
                               </svg>
                               <p className="mb-2 text-sm text-primary dark:text-gray-400">
-                                <span className="font-semibold">
-                                  Click to upload
-                                </span>{" "}
-                                or drag and drop
+                                {selectedFileName
+                                  ? `File selected: ${selectedFileName}`
+                                  : "Click to upload or drag and drop"}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                SVG, PNG, JPG or GIF (Max Size : 5MB)
+                                SVG, PNG, JPG or GIF (Max Size: 5MB)
                               </p>
                             </div>
 
@@ -195,6 +197,12 @@ const UploadButton = () => {
                               className="hidden"
                               type="file"
                               {...fileRef}
+                              onChange={(e) => {
+                                fileRef.onChange(e);
+                                if (e.target.files?.[0]) {
+                                  setSelectedFileName(e.target.files[0].name);
+                                }
+                              }}
                             />
                           </label>
                         </div>
@@ -204,20 +212,6 @@ const UploadButton = () => {
                     </FormItem>
                   )}
                 />
-                {/* <FormField
-                  control={form.control}
-                  name="file"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>File</FormLabel>
-                      <FormControl>
-                        <Input type="file" {...fileRef} />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                /> */}
                 <div className="flex justify-center">
                   <Button
                     disabled={form.formState.isSubmitting}

@@ -24,12 +24,28 @@ import {
 import { Doc } from "../../convex/_generated/dataModel";
 import { Label } from "@radix-ui/react-label";
 
-function EmptyState() {
+function EmptyState({
+  showUploadButton = true,
+  onBack,
+  isSearching,
+}: {
+  showUploadButton?: boolean;
+  onBack?: () => void;
+  isSearching?: boolean;
+}) {
   return (
     <div className="flex justify-center text-center mt-10 flex-col gap-8 w-full items-center md:mt-20">
       <Image src={"/empty.svg"} alt="no files found" width={300} height={300} />
-      <h1 className="text-2xl">No Files Found , Upload one now!</h1>
-      <UploadButton />
+      <h1 className="text-2xl">No Files Found</h1>
+      {showUploadButton && !isSearching && <UploadButton />}
+      {isSearching && onBack && (
+        <button
+          onClick={onBack}
+          className="mt-4 px-4 py-2 bg-violet-500 text-white rounded-md hover:bg-violet-700"
+        >
+          Back
+        </button>
+      )}
     </div>
   );
 }
@@ -80,23 +96,33 @@ export function FileBrowser({
         (favorite) => favorite.fileId === file._id
       ),
     })) ?? [];
+
+  const showEmptyState = !files || files.length === 0;
+
+  const handleBack = () => {
+    setQuery("");
+  };
+
   return (
     <div>
-      {/* {} */}
-      {((files && files?.length == 0 && !query) || files?.length == 0) && (
-        <EmptyState />
+      {showEmptyState && (
+        <EmptyState
+          showUploadButton={!favoritesOnly && !deleteOnly}
+          onBack={query ? handleBack : undefined}
+          isSearching={!!query}
+        />
       )}
-      {files && files?.length > 0 && (
+      {!showEmptyState && (
         <>
-          <div className="flex justify-between items-center gap-5 w-full md:px-14 mb-20">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-5 w-full md:px-14 mb-20">
             <h1 className="text-2xl md:text-4xl font-bold">{title}</h1>
             <SearchBar query={query} setQuery={setQuery} />
             <UploadButton />
           </div>
 
           <Tabs defaultValue="grid">
-            <div className="flex justify-between px-14 items-center">
-              <TabsList className="w-[300px] mb-2">
+            <div className="flex flex-col md:flex-row justify-between px-4 md:px-14 items-center">
+              <TabsList className="w-full md:w-[300px] mb-2 md:mb-0">
                 <TabsTrigger value="grid" className="flex gap-2 items-center">
                   <GridIcon />
                   Grid
@@ -106,7 +132,7 @@ export function FileBrowser({
                   Table
                 </TabsTrigger>
               </TabsList>
-              <div className="flex gap-2 items-center justify-center">
+              <div className="flex gap-2 items-center justify-center mt-2 md:mt-0">
                 <Label htmlFor="typeSelect">Type Filter</Label>
                 <Select
                   value={type}
@@ -135,7 +161,7 @@ export function FileBrowser({
               </div>
             )}
             <TabsContent value="grid">
-              <div className="grid grid-cols-4 gap-10 md:px-14">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:px-14 pt-10">
                 {modifiledFiles?.map((file) => {
                   return <FileCard key={file._id} file={file} />;
                 })}
