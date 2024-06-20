@@ -11,7 +11,7 @@ const SideNav = () => {
   const pathname = usePathname();
 
   return (
-    <div className="w-40 flex flex-col gap-4">
+    <div className="hidden md:flex w-40 flex-col gap-4">
       <Link href="/launch/files">
         <Button
           variant={"link"}

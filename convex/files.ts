@@ -148,6 +148,13 @@ export const getFiles = query({
   },
 });
 
+export const ApiGetRoute = query({
+  handler: async (ctx) => {
+    const files = ctx.db.query("files").collect();
+    return files;
+  },
+});
+
 export const getFileUrlWithId = query({
   args: { fileId: v.string() },
   async handler(ctx, args) {
