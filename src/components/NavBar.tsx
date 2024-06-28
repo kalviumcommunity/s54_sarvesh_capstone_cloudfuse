@@ -66,6 +66,30 @@ const Navbar = () => {
               </ul>
             </nav>
 
+            <div className="sm:flex sm:gap-4">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button className="bg-secondary hover:bg-[#6b75894a] border-2 border-[#7C3AED] text-primary font-bold">
+                      Log In
+                    </Button>
+                  </SignInButton>
+                </SignedOut>
+
+                <div className="hidden md:flex justify-between">
+                  <SignedIn>
+                    <OrganizationSwitcher />
+                    <UserButton />
+                    {/* <UserButton /> */}
+                  </SignedIn>
+                  <SignedOut>
+                    <SignUpButton mode="modal">
+                      <Button>Sign up for free</Button>
+                    </SignUpButton>
+                  </SignedOut>
+                </div>
+              </div>
+
+
             <div className="flex items-center md:-ml-9 gap-4">
 
               <div className="block md:hidden">
