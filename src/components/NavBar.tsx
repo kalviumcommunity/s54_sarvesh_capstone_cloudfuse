@@ -13,10 +13,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 
-const NavBar = () => {
+const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -69,69 +67,15 @@ const NavBar = () => {
             </nav>
 
             <div className="flex items-center md:-ml-9 gap-4">
-              <div className="sm:flex sm:gap-4">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button className="bg-secondary hover:bg-[#6b75894a] border-2 border-[#7C3AED] text-primary font-bold">
-                      Log In
-                    </Button>
-                  </SignInButton>
-                </SignedOut>
-
-                <div className="hidden md:flex justify-between">
-                  <SignedIn>
-                    <OrganizationSwitcher />
-                    <UserButton />
-                    {/* <UserButton /> */}
-                  </SignedIn>
-                  <SignedOut>
-                    <SignUpButton mode="modal">
-                      <Button>Sign up for free</Button>
-                    </SignUpButton>
-                  </SignedOut>
-                </div>
-              </div>
 
               <div className="block md:hidden">
-                <div className="flex gap-5 justify-center items-center">
-                  <div className="bg-primary rounded-full h-9 w-9 flex justify-center items-center	">
-                    <UserButton />
-                  </div>
-                  <button
-                    className="rounded bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75"
-                    onClick={toggleMenu}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      {menuOpen ? (
-                        <>
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4 6h16M4 12h16M4 18h16"
-                          />
-                        </>
-                      )}
-                    </svg>
-                  </button>
-                </div>
+                
 
                 {menuOpen && (
-                  <nav className="w-screen bg-white z-30 h-screen absolute top-[80%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded p-2 text-gray-600 transition hover:text-gray-600/75">
+                  <nav 
+                  className="w-screen flex pt-20 bg-white z-30  h-screen top-[60%] 
+                  absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                  rounded p-2 text-gray-600 transition hover:text-gray-600/75">
                     <ul className="flex flex-col w-full items-center gap-6 text-xl font-[600]">
                       <li>
                         <Link
@@ -189,4 +133,4 @@ const NavBar = () => {
   );
 };
 
-export default NavBar;
+export default Navbar;
