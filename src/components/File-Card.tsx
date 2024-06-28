@@ -10,7 +10,7 @@ import { formatRelative } from "date-fns";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { GanttChartIcon, ImageIcon, TextIcon } from "lucide-react";
+import {   GanttChartIcon, ImageIcon, TextIcon } from "lucide-react";
 
 import { ReactNode } from "react";
 import { api } from "../../convex/_generated/api";
